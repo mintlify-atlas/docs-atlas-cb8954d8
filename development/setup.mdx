@@ -1,0 +1,243 @@
+---
+title: 'Development Setup'
+description: 'Set up your local development environment for Vicenta'
+---
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed on your system:
+
+<CardGroup cols={2}>
+  <Card title="Node.js" icon="node">
+    Node.js 20.x or higher
+  </Card>
+  <Card title="Package Manager" icon="box">
+    npm, yarn, pnpm, or bun
+  </Card>
+</CardGroup>
+
+<Note>
+  Vicenta is built with Next.js 14.2.6 and requires Node.js 20 or higher for optimal performance.
+</Note>
+
+## Installation
+
+<Steps>
+  <Step title="Clone the repository">
+    Clone the Vicenta repository to your local machine:
+    
+    ```bash
+    git clone <repository-url>
+    cd front
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    Install the project dependencies using your preferred package manager:
+    
+    <CodeGroup>
+      ```bash npm
+      npm install
+      ```
+
+      ```bash yarn
+      yarn install
+      ```
+
+      ```bash pnpm
+      pnpm install
+      ```
+
+      ```bash bun
+      bun install
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Start the development server">
+    Run the development server:
+    
+    <CodeGroup>
+      ```bash npm
+      npm run dev
+      ```
+
+      ```bash yarn
+      yarn dev
+      ```
+
+      ```bash pnpm
+      pnpm dev
+      ```
+
+      ```bash bun
+      bun dev
+      ```
+    </CodeGroup>
+
+    The application will be available at [http://localhost:3000](http://localhost:3000).
+  </Step>
+</Steps>
+
+## Project Structure
+
+Vicenta follows the Next.js 14 App Router structure:
+
+```
+front/
+├── src/
+│   └── app/
+│       ├── layout.tsx       # Root layout component
+│       ├── page.tsx         # Home page
+│       ├── globals.css      # Global styles
+│       └── favicon.ico      # Site favicon
+├── public/                  # Static assets
+├── next.config.mjs          # Next.js configuration
+├── tailwind.config.ts       # Tailwind CSS configuration
+├── tsconfig.json            # TypeScript configuration
+├── postcss.config.mjs       # PostCSS configuration
+└── package.json             # Project dependencies
+```
+
+<Tip>
+  The `src/app` directory uses the Next.js App Router. Each folder can contain:
+  - `page.tsx` - Page component
+  - `layout.tsx` - Layout component
+  - `loading.tsx` - Loading UI
+  - `error.tsx` - Error UI
+</Tip>
+
+## Available Scripts
+
+Vicenta comes with the following npm scripts:
+
+<AccordionGroup>
+  <Accordion title="npm run dev">
+    Starts the development server on `http://localhost:3000`.
+    
+    ```bash
+    npm run dev
+    ```
+    
+    The page auto-updates as you edit files, providing instant feedback during development.
+  </Accordion>
+
+  <Accordion title="npm run build">
+    Creates an optimized production build of your application.
+    
+    ```bash
+    npm run build
+    ```
+    
+    This command compiles TypeScript, optimizes assets, and generates static pages.
+  </Accordion>
+
+  <Accordion title="npm run start">
+    Starts the production server after building.
+    
+    ```bash
+    npm run start
+    ```
+    
+    Run `npm run build` before using this command.
+  </Accordion>
+
+  <Accordion title="npm run lint">
+    Runs ESLint to check for code quality issues.
+    
+    ```bash
+    npm run lint
+    ```
+    
+    Vicenta uses `eslint-config-next` for Next.js-specific linting rules.
+  </Accordion>
+</AccordionGroup>
+
+## Dependencies
+
+Vicenta uses the following core dependencies:
+
+### Production Dependencies
+
+```json package.json
+{
+  "dependencies": {
+    "react": "^18",
+    "react-dom": "^18",
+    "next": "14.2.6"
+  }
+}
+```
+
+### Development Dependencies
+
+```json package.json
+{
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.6"
+  }
+}
+```
+
+<Note>
+  The project is fully typed with TypeScript and includes type definitions for all major dependencies.
+</Note>
+
+## Development Workflow
+
+<Steps>
+  <Step title="Edit files">
+    Make changes to any file in the `src/app` directory. The development server will automatically reload.
+  </Step>
+
+  <Step title="Check for errors">
+    The terminal running `npm run dev` will display any compilation or runtime errors.
+  </Step>
+
+  <Step title="Lint your code">
+    Run `npm run lint` to ensure code quality before committing:
+    
+    ```bash
+    npm run lint
+    ```
+  </Step>
+
+  <Step title="Build for production">
+    Test your changes with a production build:
+    
+    ```bash
+    npm run build
+    npm run start
+    ```
+  </Step>
+</Steps>
+
+## Hot Reloading
+
+Vicenta supports Fast Refresh, which provides instant feedback for edits made to React components:
+
+- Edits to `page.tsx` files are immediately reflected in the browser
+- State is preserved during component updates
+- Only the changed component is re-rendered
+
+<Tip>
+  If Fast Refresh doesn't work, try restarting the development server with `npm run dev`.
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configuration" icon="gear" href="/development/configuration">
+    Learn how to configure Next.js, TypeScript, and PostCSS
+  </Card>
+  <Card title="Styling" icon="paintbrush" href="/development/styling">
+    Explore Tailwind CSS setup and customization
+  </Card>
+</CardGroup>

@@ -1,0 +1,423 @@
+---
+title: 'Deployment Overview'
+description: 'Learn how to deploy your Vicenta Next.js application to production'
+---
+
+<Info>
+  **Prerequisites**:
+  - Node.js version 18 or higher
+  - Completed development and testing
+  - Environment variables configured
+</Info>
+
+Vicenta is built with Next.js 14, which offers flexible deployment options ranging from serverless platforms to traditional hosting environments. This guide covers the essential steps and considerations for deploying your application to production.
+
+## Build Process
+
+Before deploying, you need to create an optimized production build of your application.
+
+<Steps>
+<Step title="Install dependencies">
+
+Ensure all dependencies are installed:
+
+```bash
+npm install
+```
+
+</Step>
+
+<Step title="Run the production build">
+
+Create an optimized build for production:
+
+```bash
+npm run build
+```
+
+This command does the following:
+- Compiles TypeScript to JavaScript
+- Optimizes and minifies code
+- Generates static assets
+- Creates server-side bundles
+- Optimizes images and fonts
+
+</Step>
+
+<Step title="Test the production build locally">
+
+Verify the build works correctly:
+
+```bash
+npm start
+```
+
+Your application will run at `http://localhost:3000` in production mode.
+
+</Step>
+</Steps>
+
+## Environment Variables
+
+Environment variables are crucial for managing configuration across different environments.
+
+### Local Development
+
+Create a `.env.local` file in your project root:
+
+```bash
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:8000
+
+# Authentication
+NEXT_PUBLIC_AUTH_DOMAIN=your-auth-domain.com
+AUTH_SECRET=your-secret-key-here
+
+# Database (if applicable)
+DATABASE_URL=your-database-connection-string
+```
+
+<Note>
+  Variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. Keep sensitive values without this prefix.
+</Note>
+
+### Production Environment
+
+For production, configure environment variables in your hosting platform:
+
+1. Never commit `.env.local` to version control
+2. Use your hosting platform's environment variable settings
+3. Update values to point to production services
+4. Rotate secrets regularly
+
+<Warning>
+  Never expose sensitive API keys, database credentials, or secrets in client-side code.
+</Warning>
+
+## Deployment Options
+
+Next.js applications can be deployed to various platforms, each with different trade-offs:
+
+<CardGroup cols={2}>
+
+<Card title="Vercel" icon="rocket" href="/deployment/vercel">
+  Recommended for Next.js. Zero-configuration deployment with automatic optimizations.
+</Card>
+
+<Card title="Self-Hosted" icon="server">
+  Deploy to your own infrastructure with full control using Node.js server.
+</Card>
+
+<Card title="Docker" icon="docker">
+  Containerize your application for consistent deployments across environments.
+</Card>
+
+<Card title="Static Export" icon="file-export">
+  Export to static HTML for hosting on CDNs (limited to static features).
+</Card>
+
+</CardGroup>
+
+## Production Considerations
+
+### Performance Optimization
+
+<AccordionGroup>
+  <Accordion title="Image Optimization" icon="image">
+    Next.js automatically optimizes images using the `<Image>` component:
+    
+    ```tsx
+    import Image from 'next/image'
+    
+    export default function Page() {
+      return (
+        <Image
+          src="/profile.png"
+          alt="Profile"
+          width={500}
+          height={500}
+          priority
+        />
+      )
+    }
+    ```
+    
+    Configure image domains in `next.config.mjs` for external images:
+    
+    ```javascript
+    const nextConfig = {
+      images: {
+        remotePatterns: [
+          {
+            protocol: 'https',
+            hostname: 'example.com',
+          },
+        ],
+      },
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Caching Strategy" icon="database">
+    Implement effective caching for better performance:
+    
+    ```typescript
+    // app/page.tsx - Revalidate every hour
+    export const revalidate = 3600
+    
+    export default async function Page() {
+      const data = await fetch('https://api.example.com/data', {
+        next: { revalidate: 3600 }
+      })
+      
+      return <div>{/* Your content */}</div>
+    }
+    ```
+    
+    Cache levels:
+    - `force-cache`: Cache indefinitely (default)
+    - `no-store`: Fetch fresh data on every request
+    - `revalidate`: Cache with time-based revalidation
+  </Accordion>
+
+  <Accordion title="Code Splitting" icon="scissors">
+    Next.js automatically splits code by route. For additional optimization:
+    
+    ```typescript
+    import dynamic from 'next/dynamic'
+    
+    // Lazy load heavy components
+    const HeavyComponent = dynamic(() => import('@/components/Heavy'), {
+      loading: () => <p>Loading...</p>,
+      ssr: false // Disable server-side rendering if needed
+    })
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Security Best Practices
+
+<Steps>
+<Step title="Set security headers">
+
+Add security headers in `next.config.mjs`:
+
+```javascript
+const nextConfig = {
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+</Step>
+
+<Step title="Implement HTTPS">
+
+Always use HTTPS in production. Most hosting platforms provide this automatically.
+
+</Step>
+
+<Step title="Validate environment variables">
+
+Create a validation schema for environment variables:
+
+```typescript
+// lib/env.ts
+if (!process.env.NEXT_PUBLIC_API_URL) {
+  throw new Error('Missing NEXT_PUBLIC_API_URL environment variable')
+}
+
+export const env = {
+  apiUrl: process.env.NEXT_PUBLIC_API_URL,
+  // ... other variables
+}
+```
+
+</Step>
+</Steps>
+
+### Monitoring and Analytics
+
+Set up monitoring to track application health:
+
+- **Error Tracking**: Integrate Sentry or similar services
+- **Performance Monitoring**: Use Web Vitals and Real User Monitoring
+- **Analytics**: Add Google Analytics or privacy-friendly alternatives
+
+```typescript
+// app/layout.tsx
+import { Analytics } from '@vercel/analytics/react'
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <Analytics />
+      </body>
+    </html>
+  )
+}
+```
+
+## Self-Hosted Deployment
+
+To deploy on your own server:
+
+<Steps>
+<Step title="Build the application">
+
+```bash
+npm run build
+```
+
+</Step>
+
+<Step title="Start the production server">
+
+```bash
+NODE_ENV=production npm start
+```
+
+The application runs on port 3000 by default. Configure with:
+
+```bash
+PORT=8080 npm start
+```
+
+</Step>
+
+<Step title="Use a process manager">
+
+For production stability, use PM2:
+
+```bash
+npm install -g pm2
+pm2 start npm --name "vicenta" -- start
+pm2 save
+pm2 startup
+```
+
+</Step>
+
+<Step title="Configure reverse proxy">
+
+Use Nginx as a reverse proxy:
+
+```nginx
+server {
+  listen 80;
+  server_name your-domain.com;
+
+  location / {
+    proxy_pass http://localhost:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+  }
+}
+```
+
+</Step>
+</Steps>
+
+## Docker Deployment
+
+Create a `Dockerfile` for containerized deployment:
+
+```dockerfile
+FROM node:18-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+RUN npm run build
+
+# Production image
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+
+CMD ["node", "server.js"]
+```
+
+Enable standalone output in `next.config.mjs`:
+
+```javascript
+const nextConfig = {
+  output: 'standalone',
+}
+
+export default nextConfig
+```
+
+Build and run:
+
+```bash
+docker build -t vicenta .
+docker run -p 3000:3000 vicenta
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+
+<Card title="Deploy to Vercel" icon="rocket" href="/deployment/vercel">
+  Follow our step-by-step guide for deploying to Vercel.
+</Card>
+
+<Card title="Development" icon="code" href="/development">
+  Learn about local development and testing.
+</Card>
+
+</CardGroup>
+
+<Note>
+  Need help with deployment? Check the [Next.js deployment documentation](https://nextjs.org/docs/deployment) or reach out to your team.
+</Note>

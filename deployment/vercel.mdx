@@ -1,0 +1,616 @@
+---
+title: 'Deploy to Vercel'
+description: 'Deploy your Vicenta application to Vercel with zero configuration'
+---
+
+<Info>
+  Vercel is the recommended platform for deploying Next.js applications. It's created by the same team that builds Next.js and provides automatic optimizations, instant rollbacks, and seamless CI/CD.
+</Info>
+
+## Why Vercel?
+
+Vercel offers the best experience for Next.js applications:
+
+- **Zero Configuration**: Automatic detection of Next.js framework settings
+- **Global CDN**: Automatic deployment to edge network for fast loading
+- **Automatic HTTPS**: Free SSL certificates for all deployments
+- **Instant Rollbacks**: One-click rollback to any previous deployment
+- **Preview Deployments**: Automatic preview URLs for every pull request
+- **Edge Functions**: Deploy serverless functions to the edge
+- **Analytics**: Built-in Web Vitals and performance monitoring
+
+## Initial Setup
+
+<Steps>
+<Step title="Create a Vercel account">
+
+Sign up for a free account at [vercel.com](https://vercel.com):
+
+1. Visit [vercel.com/signup](https://vercel.com/signup)
+2. Sign up with GitHub, GitLab, or Bitbucket
+3. Authorize Vercel to access your repositories
+
+<Note>
+  Signing up with your Git provider enables automatic deployments from your repositories.
+</Note>
+
+</Step>
+
+<Step title="Install Vercel CLI (optional)">
+
+For CLI-based deployments, install the Vercel CLI:
+
+```bash
+npm i -g vercel
+```
+
+Login to your account:
+
+```bash
+vercel login
+```
+
+</Step>
+</Steps>
+
+## Deployment Methods
+
+### Method 1: Deploy from Git (Recommended)
+
+This method provides continuous deployment with automatic updates.
+
+<Steps>
+<Step title="Push your code to GitHub">
+
+Ensure your Vicenta project is in a Git repository:
+
+```bash
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/your-username/vicenta.git
+git push -u origin main
+```
+
+</Step>
+
+<Step title="Import project in Vercel">
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Click **Import Project**
+3. Select your Git provider (GitHub, GitLab, or Bitbucket)
+4. Find and import your Vicenta repository
+
+<Note>
+  Vercel will automatically detect your repository and show it in the import list.
+</Note>
+
+</Step>
+
+<Step title="Configure project settings">
+
+Vercel automatically detects Next.js projects. Verify the settings:
+
+- **Framework Preset**: Next.js (auto-detected)
+- **Build Command**: `npm run build` (auto-filled)
+- **Output Directory**: `.next` (auto-filled)
+- **Install Command**: `npm install` (auto-filled)
+
+<Note>
+  You typically don't need to change these settings for a standard Next.js project.
+</Note>
+
+</Step>
+
+<Step title="Add environment variables">
+
+If your application uses environment variables:
+
+1. Expand the **Environment Variables** section
+2. Add each variable with its production value:
+   - `NEXT_PUBLIC_API_URL`: Your production API endpoint
+   - `DATABASE_URL`: Your production database connection string
+   - `AUTH_SECRET`: Your authentication secret
+
+<Warning>
+  Never commit sensitive credentials to Git. Always add them through Vercel's dashboard.
+</Warning>
+
+</Step>
+
+<Step title="Deploy">
+
+Click **Deploy** and wait for the build to complete. This typically takes 1-2 minutes.
+
+You'll see real-time build logs showing:
+- Dependency installation
+- TypeScript compilation
+- Next.js build process
+- Deployment to global edge network
+
+</Step>
+
+<Step title="Access your deployment">
+
+Once complete, you'll receive:
+- A production URL (e.g., `vicenta.vercel.app`)
+- A deployment preview
+- Performance insights
+
+<Tip>
+  Click on the deployment URL to view your live application. Vercel provides automatic HTTPS and global CDN distribution.
+</Tip>
+
+</Step>
+</Steps>
+
+### Method 2: Deploy with Vercel CLI
+
+For quick deployments from your terminal:
+
+<Steps>
+<Step title="Navigate to your project">
+
+```bash
+cd /path/to/vicenta
+```
+
+</Step>
+
+<Step title="Run deployment command">
+
+For production deployment:
+
+```bash
+vercel --prod
+```
+
+For preview deployment:
+
+```bash
+vercel
+```
+
+</Step>
+
+<Step title="Follow the prompts">
+
+The CLI will ask:
+- Set up and deploy? **Y**
+- Which scope? Select your account
+- Link to existing project? **N** (for first deployment)
+- Project name? **vicenta** (or your preferred name)
+- Directory with code? **./** (current directory)
+
+</Step>
+</Steps>
+
+## Automatic Deployments
+
+Once connected to Git, Vercel automatically deploys:
+
+### Production Deployments
+
+Every push to your main branch triggers a production deployment:
+
+```bash
+git add .
+git commit -m "Update homepage content"
+git push origin main
+```
+
+Vercel will:
+1. Detect the push
+2. Run the build process
+3. Deploy to production
+4. Update your production URL
+5. Send notifications (optional)
+
+### Preview Deployments
+
+Every pull request gets a unique preview URL:
+
+```bash
+git checkout -b feature/new-dashboard
+# Make changes
+git add .
+git commit -m "Add new dashboard"
+git push origin feature/new-dashboard
+```
+
+Create a pull request on GitHub, and Vercel automatically:
+- Creates a preview deployment
+- Comments on the PR with the preview URL
+- Updates the preview on every commit
+- Runs build checks
+
+<Note>
+  Preview deployments allow you to test changes before merging to production.
+</Note>
+
+## Environment Variables
+
+### Adding Environment Variables
+
+<Steps>
+<Step title="Access project settings">
+
+1. Go to your project dashboard on Vercel
+2. Click **Settings** tab
+3. Navigate to **Environment Variables**
+
+</Step>
+
+<Step title="Add variables">
+
+For each environment variable:
+
+1. Enter the **Key**: `NEXT_PUBLIC_API_URL`
+2. Enter the **Value**: `https://api.yourapp.com`
+3. Select environments: Production, Preview, Development
+4. Click **Save**
+
+</Step>
+
+<Step title="Redeploy for changes">
+
+Environment variable changes require a redeploy:
+
+```bash
+vercel --prod
+```
+
+Or trigger a redeploy from the dashboard:
+1. Go to **Deployments** tab
+2. Click **•••** on latest deployment
+3. Select **Redeploy**
+
+</Step>
+</Steps>
+
+### Environment-Specific Variables
+
+Set different values for each environment:
+
+<CodeGroup>
+
+```bash Production
+NEXT_PUBLIC_API_URL=https://api.production.com
+DATABASE_URL=postgres://prod-db.com/vicenta
+```
+
+```bash Preview
+NEXT_PUBLIC_API_URL=https://api.staging.com
+DATABASE_URL=postgres://staging-db.com/vicenta
+```
+
+```bash Development
+NEXT_PUBLIC_API_URL=http://localhost:8000
+DATABASE_URL=postgres://localhost/vicenta_dev
+```
+
+</CodeGroup>
+
+<Warning>
+  Changes to environment variables don't apply to existing deployments. You must trigger a new deployment.
+</Warning>
+
+## Custom Domain Setup
+
+Add your own domain to your Vercel deployment:
+
+<Steps>
+<Step title="Access domain settings">
+
+1. Open your project dashboard
+2. Click **Settings** tab
+3. Navigate to **Domains**
+
+</Step>
+
+<Step title="Add your domain">
+
+1. Enter your domain: `www.yourapp.com`
+2. Click **Add**
+3. Vercel checks domain availability
+
+</Step>
+
+<Step title="Configure DNS">
+
+Vercel provides DNS configuration instructions:
+
+**For apex domain (yourapp.com):**
+```text
+Type: A
+Name: @
+Value: 76.76.21.21
+```
+
+**For subdomain (www.yourapp.com):**
+```text
+Type: CNAME
+Name: www
+Value: cname.vercel-dns.com
+```
+
+Update these records with your domain registrar (GoDaddy, Namecheap, Cloudflare, etc.).
+
+</Step>
+
+<Step title="Wait for DNS propagation">
+
+DNS changes can take 24-48 hours to propagate globally. Vercel automatically:
+- Verifies domain ownership
+- Provisions SSL certificate
+- Configures HTTPS redirect
+
+<Note>
+  You can check DNS propagation status at [dnschecker.org](https://dnschecker.org)
+</Note>
+
+</Step>
+
+<Step title="Set as primary domain (optional)">
+
+To make your custom domain the primary URL:
+
+1. Find your domain in the domains list
+2. Click **•••**
+3. Select **Set as Primary Domain**
+
+Visitors to `vicenta.vercel.app` will redirect to your custom domain.
+
+</Step>
+</Steps>
+
+## Monitoring and Analytics
+
+### Real-Time Analytics
+
+Vercel provides built-in analytics:
+
+1. Go to **Analytics** tab in your project
+2. View metrics:
+   - Page views and unique visitors
+   - Top pages and routes
+   - Devices and locations
+   - Referrers and traffic sources
+
+### Web Vitals
+
+Monitor Core Web Vitals for performance:
+
+1. Navigate to **Analytics** > **Web Vitals**
+2. Track metrics:
+   - **LCP** (Largest Contentful Paint): Loading performance
+   - **FID** (First Input Delay): Interactivity
+   - **CLS** (Cumulative Layout Shift): Visual stability
+
+<Note>
+  Good Web Vitals scores improve SEO rankings and user experience.
+</Note>
+
+### Runtime Logs
+
+Access real-time logs:
+
+1. Go to **Deployments** tab
+2. Click on a deployment
+3. Navigate to **Functions** or **Logs** tab
+4. View serverless function logs and errors
+
+## Advanced Configuration
+
+### Build Settings
+
+Customize build behavior in `vercel.json`:
+
+```json
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next"
+}
+```
+
+### Serverless Function Configuration
+
+Optimize function settings:
+
+```json
+{
+  "functions": {
+    "app/api/**/*.ts": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
+}
+```
+
+### Headers and Redirects
+
+Configure in `next.config.mjs`:
+
+```javascript
+const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/old-path',
+        destination: '/new-path',
+        permanent: true,
+      },
+    ]
+  },
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+        ],
+      },
+    ]
+  },
+}
+
+export default nextConfig
+```
+
+## Rollback and History
+
+### Instant Rollback
+
+If a deployment causes issues:
+
+<Steps>
+<Step title="View deployment history">
+
+Go to **Deployments** tab to see all deployments.
+
+</Step>
+
+<Step title="Select previous deployment">
+
+Click on a working deployment from the history.
+
+</Step>
+
+<Step title="Promote to production">
+
+1. Click **•••** menu
+2. Select **Promote to Production**
+3. Confirm the rollback
+
+Production traffic instantly routes to the selected deployment.
+
+</Step>
+</Steps>
+
+<Warning>
+  Rolling back only affects the deployment, not database migrations or external state.
+</Warning>
+
+## Collaboration and Teams
+
+### Invite Team Members
+
+1. Go to your account **Settings**
+2. Navigate to **Team**
+3. Click **Invite Member**
+4. Enter email address and select role:
+   - **Viewer**: Read-only access
+   - **Developer**: Deploy and configure
+   - **Owner**: Full access including billing
+
+### Deployment Protection
+
+Protect production deployments:
+
+1. Go to **Settings** > **Deployment Protection**
+2. Enable options:
+   - **Vercel Authentication**: Password-protect preview deployments
+   - **Trusted IPs**: Restrict access by IP address
+   - **Preview Protection**: Require login for previews
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Build fails with module not found" icon="xmark">
+    **Solution**: Ensure all dependencies are in `package.json`:
+    
+    ```bash
+    npm install <missing-package> --save
+    git add package.json package-lock.json
+    git commit -m "Add missing dependency"
+    git push
+    ```
+  </Accordion>
+
+  <Accordion title="Environment variables not working" icon="key">
+    **Solution**: 
+    1. Verify variables are added in Vercel dashboard
+    2. Check variable names match exactly (case-sensitive)
+    3. Redeploy after adding new variables
+    4. For browser variables, ensure `NEXT_PUBLIC_` prefix
+  </Accordion>
+
+  <Accordion title="Custom domain shows 'Invalid Configuration'" icon="globe">
+    **Solution**:
+    1. Verify DNS records are correct
+    2. Wait 24-48 hours for DNS propagation
+    3. Remove and re-add the domain
+    4. Check domain registrar settings
+    5. Use `dig` or `nslookup` to verify DNS:
+    
+    ```bash
+    dig www.yourapp.com
+    ```
+  </Accordion>
+
+  <Accordion title="Deployment is slow" icon="clock">
+    **Solution**:
+    1. Check build logs for slow operations
+    2. Optimize dependencies (remove unused packages)
+    3. Enable Next.js Speed Insights
+    4. Consider upgrading to Vercel Pro for faster builds
+  </Accordion>
+
+  <Accordion title="Function execution timeout" icon="timer">
+    **Solution**: Serverless functions have execution limits:
+    - **Hobby**: 10 seconds
+    - **Pro**: 60 seconds
+    - **Enterprise**: 900 seconds
+    
+    Optimize long-running operations or upgrade your plan.
+  </Accordion>
+</AccordionGroup>
+
+## Vercel CLI Reference
+
+Common CLI commands:
+
+```bash
+# Deploy to preview
+vercel
+
+# Deploy to production
+vercel --prod
+
+# List deployments
+vercel ls
+
+# View deployment logs
+vercel logs [deployment-url]
+
+# Pull environment variables
+vercel env pull .env.local
+
+# Link local project to Vercel
+vercel link
+
+# Remove deployment
+vercel rm [deployment-url]
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+
+<Card title="Deployment Overview" icon="book" href="/deployment/overview">
+  Learn about other deployment options and best practices.
+</Card>
+
+<Card title="Monitoring" icon="chart-line">
+  Set up advanced monitoring and error tracking.
+</Card>
+
+</CardGroup>
+
+<Note>
+  For more details, visit the [Vercel documentation](https://vercel.com/docs) or [Next.js deployment guide](https://nextjs.org/docs/deployment).
+</Note>

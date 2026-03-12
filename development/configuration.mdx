@@ -1,0 +1,420 @@
+---
+title: 'Configuration'
+description: 'Configure Next.js, TypeScript, and build tools for Vicenta'
+---
+
+## Next.js Configuration
+
+Vicenta uses a minimal Next.js configuration that can be extended based on your needs.
+
+### next.config.mjs
+
+The base configuration file:
+
+```javascript next.config.mjs
+/** @type {import('next').NextConfig} */
+const nextConfig = {};
+
+export default nextConfig;
+```
+
+<Note>
+  The configuration uses ES modules (`.mjs`) for modern JavaScript syntax.
+</Note>
+
+### Common Configuration Options
+
+You can extend the Next.js configuration with various options:
+
+<Tabs>
+  <Tab title="Image Optimization">
+    Configure external image domains:
+
+    ```javascript next.config.mjs
+    /** @type {import('next').NextConfig} */
+    const nextConfig = {
+      images: {
+        domains: ['example.com', 'cdn.example.com'],
+        remotePatterns: [
+          {
+            protocol: 'https',
+            hostname: '**.example.com',
+          },
+        ],
+      },
+    };
+
+    export default nextConfig;
+    ```
+  </Tab>
+
+  <Tab title="Environment Variables">
+    Expose environment variables to the browser:
+
+    ```javascript next.config.mjs
+    /** @type {import('next').NextConfig} */
+    const nextConfig = {
+      env: {
+        CUSTOM_KEY: process.env.CUSTOM_KEY,
+      },
+    };
+
+    export default nextConfig;
+    ```
+
+    <Tip>
+      Variables prefixed with `NEXT_PUBLIC_` are automatically exposed to the browser.
+    </Tip>
+  </Tab>
+
+  <Tab title="Redirects & Rewrites">
+    Configure URL redirects and rewrites:
+
+    ```javascript next.config.mjs
+    /** @type {import('next').NextConfig} */
+    const nextConfig = {
+      async redirects() {
+        return [
+          {
+            source: '/old-page',
+            destination: '/new-page',
+            permanent: true,
+          },
+        ];
+      },
+      async rewrites() {
+        return [
+          {
+            source: '/api/:path*',
+            destination: 'https://api.example.com/:path*',
+          },
+        ];
+      },
+    };
+
+    export default nextConfig;
+    ```
+  </Tab>
+
+  <Tab title="Custom Webpack">
+    Extend the webpack configuration:
+
+    ```javascript next.config.mjs
+    /** @type {import('next').NextConfig} */
+    const nextConfig = {
+      webpack: (config, { isServer }) => {
+        // Add custom webpack configuration
+        return config;
+      },
+    };
+
+    export default nextConfig;
+    ```
+  </Tab>
+</Tabs>
+
+## TypeScript Configuration
+
+Vicenta is configured with strict TypeScript settings for type safety.
+
+### tsconfig.json
+
+The complete TypeScript configuration:
+
+```json tsconfig.json
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
+
+### Key Configuration Options
+
+<AccordionGroup>
+  <Accordion title="Compiler Options">
+    **`lib`** - Includes DOM types and ESNext features
+    
+    **`strict`** - Enables all strict type checking options
+    
+    **`noEmit`** - TypeScript doesn't emit compiled files (Next.js handles this)
+    
+    **`jsx`** - Preserves JSX for Next.js to transform
+    
+    **`moduleResolution`** - Uses bundler resolution for modern module handling
+  </Accordion>
+
+  <Accordion title="Path Aliases">
+    The `@/*` path alias allows importing from the `src` directory:
+
+    ```typescript
+    // Instead of relative imports
+    import Component from '../../../components/Component';
+
+    // Use the @ alias
+    import Component from '@/components/Component';
+    ```
+
+    <Tip>
+      Add more path aliases by extending the `paths` object in `tsconfig.json`.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Next.js Plugin">
+    The Next.js TypeScript plugin provides:
+    
+    - Type checking for Next.js-specific features
+    - Auto-completion for page props and metadata
+    - Error detection for common mistakes
+    
+    ```json
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+    ```
+  </Accordion>
+
+  <Accordion title="Include & Exclude">
+    **Include:**
+    - `next-env.d.ts` - Next.js type definitions
+    - `**/*.ts`, `**/*.tsx` - All TypeScript files
+    - `.next/types/**/*.ts` - Generated types
+    
+    **Exclude:**
+    - `node_modules` - Third-party dependencies
+  </Accordion>
+</AccordionGroup>
+
+### Customizing TypeScript
+
+You can adjust TypeScript strictness based on your needs:
+
+<CodeGroup>
+  ```json Less Strict
+  {
+    "compilerOptions": {
+      "strict": false,
+      "noImplicitAny": false,
+      "strictNullChecks": false
+    }
+  }
+  ```
+
+  ```json More Strict
+  {
+    "compilerOptions": {
+      "strict": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "noFallthroughCasesInSwitch": true
+    }
+  }
+  ```
+</CodeGroup>
+
+<Warning>
+  Disabling strict mode can lead to runtime errors that TypeScript would otherwise catch.
+</Warning>
+
+## PostCSS Configuration
+
+Vicenta uses PostCSS to process CSS files, primarily for Tailwind CSS.
+
+### postcss.config.mjs
+
+```javascript postcss.config.mjs
+/** @type {import('postcss-load-config').Config} */
+const config = {
+  plugins: {
+    tailwindcss: {},
+  },
+};
+
+export default config;
+```
+
+### Adding PostCSS Plugins
+
+You can extend PostCSS with additional plugins:
+
+<Tabs>
+  <Tab title="Autoprefixer">
+    Add vendor prefixes automatically:
+
+    ```javascript postcss.config.mjs
+    const config = {
+      plugins: {
+        tailwindcss: {},
+        autoprefixer: {},
+      },
+    };
+
+    export default config;
+    ```
+
+    Install the plugin:
+    ```bash
+    npm install autoprefixer
+    ```
+  </Tab>
+
+  <Tab title="PostCSS Nesting">
+    Enable CSS nesting:
+
+    ```javascript postcss.config.mjs
+    const config = {
+      plugins: {
+        'postcss-nesting': {},
+        tailwindcss: {},
+      },
+    };
+
+    export default config;
+    ```
+
+    Install the plugin:
+    ```bash
+    npm install postcss-nesting
+    ```
+  </Tab>
+
+  <Tab title="PostCSS Import">
+    Enable CSS imports:
+
+    ```javascript postcss.config.mjs
+    const config = {
+      plugins: {
+        'postcss-import': {},
+        tailwindcss: {},
+      },
+    };
+
+    export default config;
+    ```
+
+    Install the plugin:
+    ```bash
+    npm install postcss-import
+    ```
+  </Tab>
+</Tabs>
+
+## ESLint Configuration
+
+Vicenta uses ESLint with Next.js-specific rules.
+
+### .eslintrc.json
+
+The ESLint configuration extends the Next.js preset:
+
+```json .eslintrc.json
+{
+  "extends": "next/core-web-vitals"
+}
+```
+
+<Note>
+  The `next/core-web-vitals` preset includes rules for performance and accessibility.
+</Note>
+
+### Customizing ESLint Rules
+
+Add custom rules to enforce your code style:
+
+```json .eslintrc.json
+{
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "no-console": "warn",
+    "no-unused-vars": "error",
+    "prefer-const": "error",
+    "react/jsx-boolean-value": "error",
+    "react/jsx-curly-brace-presence": ["error", "never"]
+  }
+}
+```
+
+## Environment Variables
+
+While Vicenta doesn't include environment variables by default, you can add them:
+
+<Steps>
+  <Step title="Create .env.local">
+    Create a `.env.local` file in the project root:
+
+    ```bash .env.local
+    # Public variables (exposed to browser)
+    NEXT_PUBLIC_API_URL=https://api.example.com
+    NEXT_PUBLIC_SITE_URL=https://vicenta.example.com
+
+    # Private variables (server-side only)
+    DATABASE_URL=postgresql://...
+    API_SECRET_KEY=your-secret-key
+    ```
+  </Step>
+
+  <Step title="Access in code">
+    Use environment variables in your application:
+
+    ```typescript
+    // Client-side (browser)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    // Server-side only
+    const dbUrl = process.env.DATABASE_URL;
+    ```
+  </Step>
+
+  <Step title="Type environment variables">
+    Create type definitions for better autocomplete:
+
+    ```typescript env.d.ts
+    declare namespace NodeJS {
+      interface ProcessEnv {
+        NEXT_PUBLIC_API_URL: string;
+        NEXT_PUBLIC_SITE_URL: string;
+        DATABASE_URL: string;
+        API_SECRET_KEY: string;
+      }
+    }
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+  Never commit `.env.local` to version control. Add it to `.gitignore`.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Setup" icon="laptop-code" href="/development/setup">
+    Back to development setup
+  </Card>
+  <Card title="Styling" icon="paintbrush" href="/development/styling">
+    Learn about Tailwind CSS configuration
+  </Card>
+</CardGroup>
